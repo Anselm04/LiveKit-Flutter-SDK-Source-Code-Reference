@@ -1,0 +1,22 @@
+{
+  "upstream": "https://github.com/livekit/client-sdk-flutter",
+  "upstream_commit": "76bf736b8a5fd1919999ab245581e5423eb4c8f1",
+  "upstream_tree": "a2aafeb8b0c0ac415e772c1e8d6c887b04ff4443",
+  "upstream_tracked_entries": 592,
+  "upstream_blob_files": 592,
+  "expected_source_files": 587,
+  "verified_source_files": 587,
+  "excluded_paths": {
+    ".github/workflows/build.yaml": "upstream workflow disabled",
+    ".github/workflows/changeset.yaml": "upstream workflow disabled",
+    ".github/workflows/deploy-web.yaml": "upstream workflow disabled",
+    ".github/workflows/publish-docs.yaml": "upstream workflow disabled",
+    ".github/workflows/publish.yaml": "upstream workflow disabled"
+  },
+  "missing_paths": [],
+  "mismatched_paths": [],
+  "extra_paths": [
+    ".github/workflows/import-reference.yml"
+  ],
+  "scope": "Tracked Git blobs; no external LFS payloads, submodule contents or full history."
+}

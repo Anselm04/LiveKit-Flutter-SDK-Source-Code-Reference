@@ -1,0 +1,53 @@
+// Copyright 2026 LiveKit, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import 'package:http/http.dart' as http;
+import 'package:meta/meta.dart';
+
+import '../options.dart';
+import 'http_client/io.dart' if (dart.library.js_interop) 'http_client/web.dart' as impl;
+
+/// Replaces the HTTP client the SDK builds, so tests can answer the requests
+/// the SDK makes on its own, such as the validate call after a failed connect.
+@visibleForTesting
+http.Client Function(NetworkOptions networkOptions)? sdkHttpClientFactoryForTesting;
+
+http.Client createSdkHttpClient(NetworkOptions networkOptions) =>
+    sdkHttpClientFactoryForTesting?.call(networkOptions) ?? impl.createSdkHttpClient(networkOptions);
+
+Future<http.Response> sdkHttpGet(
+  Uri uri, {
+  Map<String, String>? headers,
+  NetworkOptions networkOptions = const NetworkOptions(),
+}) async {
+  final client = createSdkHttpClient(networkOptions);
+  try {
+    return await client.get(uri, headers: headers);
+  } finally {
+    client.close();
+  }
+}
+
+Future<http.Response> sdkHttpHead(
+  Uri uri, {
+  Map<String, String>? headers,
+  NetworkOptions networkOptions = const NetworkOptions(),
+}) async {
+  final client = createSdkHttpClient(networkOptions);
+  try {
+    return await client.head(uri, headers: headers);
+  } finally {
+    client.close();
+  }
+}

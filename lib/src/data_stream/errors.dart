@@ -1,0 +1,42 @@
+import '../exceptions.dart';
+
+enum DataStreamErrorReason {
+  // Unable to open a stream with the same ID more than once.
+  AlreadyOpened,
+
+  // Stream ended before completing: the sender disconnected mid-stream, the local room was
+  // disconnected or disposed, or sending or receiving failed. Also used for failures that map to no
+  // more specific reason.
+  AbnormalEnd,
+
+  // Incoming chunk data could not be decoded.
+  DecodeFailed,
+
+  // Read length exceeded total length specified in stream header.
+  LengthExceeded,
+
+  // Read length less than total length specified in stream header.
+  Incomplete,
+
+  // Unable to register a stream handler more than once.
+  HandlerAlreadyRegistered,
+
+  // Encryption type mismatch.
+  EncryptionTypeMismatch,
+
+  // The stream was already closed by this side.
+  AlreadyClosed,
+}
+
+class DataStreamError implements LiveKitException {
+  final DataStreamErrorReason reason;
+  @override
+  final String message;
+
+  DataStreamError({required this.reason, required this.message});
+
+  @override
+  String toString() {
+    return 'DataStreamError: $reason, $message';
+  }
+}

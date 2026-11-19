@@ -1,0 +1,77 @@
+// Copyright 2024 LiveKit, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import 'dart:async';
+
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+
+class MockDataChannel extends RTCDataChannel {
+  final String? _label;
+  final int _id;
+  RTCDataChannelState? _state = RTCDataChannelState.RTCDataChannelOpen;
+  Function(RTCDataChannelMessage data)? onMessageSend;
+  late StreamController<RTCDataChannelState> stateChangeStreamController;
+  MockDataChannel(this._id, this._label) {
+    stateChangeStreamController = StreamController<RTCDataChannelState>.broadcast();
+    // The base class declares this as a bare `late` field, reading it before
+    // assignment throws LateInitializationError
+    stateChangeStream = stateChangeStreamController.stream;
+  }
+
+  @override
+  String? get label => _label;
+
+  @override
+  Future<void> send(RTCDataChannelMessage message) async {
+    onMessageSend?.call(message);
+  }
+
+  @override
+  RTCDataChannelState? get state => _state;
+
+  @override
+  Future<void> close() async {
+    _state = RTCDataChannelState.RTCDataChannelClosing;
+    _state = RTCDataChannelState.RTCDataChannelClosed;
+  }
+
+  @override
+  // ignore: overridden_fields
+  int? bufferedAmountLowThreshold = 0;
+
+  /// Overrides the reported buffered amount, to simulate a channel that hasn't drained. Defaults to
+  /// the low threshold, i.e. never above it.
+  int? fakeBufferedAmount;
+
+  @override
+  int? get bufferedAmount => fakeBufferedAmount ?? bufferedAmountLowThreshold;
+
+  /// When set, getBufferedAmount fails with it, as the native channel does once it is closed.
+  Object? getBufferedAmountError;
+
+  /// When set, getBufferedAmount waits for it first, to hold a send's bookkeeping while something
+  /// else happens to the engine.
+  Future<void>? getBufferedAmountGate;
+
+  @override
+  Future<int> getBufferedAmount() async {
+    final gate = getBufferedAmountGate;
+    if (gate != null) await gate;
+    if (getBufferedAmountError != null) throw getBufferedAmountError!;
+    return bufferedAmount!;
+  }
+
+  @override
+  int? get id => _id;
+}
