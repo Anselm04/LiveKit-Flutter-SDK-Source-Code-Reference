@@ -70,7 +70,7 @@ dev_dependencies:
   yaml: ^3.1.2
   build_runner: ^2.4.13
   # Narrow pin so committed codegen stays deterministic across machines
-  json_serializable: ">=6.14.1 <6.15.0"
+  json_serializable: ^6.15.2
 
 import_sorter:
   comments: false
